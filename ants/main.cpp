@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <chrono>
+#include <thread>
 
 const int MAX_ROWS = 20;
 const int MAX_COLS = MAX_ROWS;
@@ -18,15 +20,26 @@ const int NEST_END_ROW = MAX_ROWS * 0.6;
 const int NEST_START_COL = NEST_START_ROW;
 const int NEST_END_COL = NEST_END_ROW;
 
-class Ant {
+
+
+
+struct Ant {
+    bool hasSugar;
+    
+    bool chercheSucre(){
+        return !hasSugar;
+    }
+    
+    bool rentreNid(){
+        return hasSugar;
+    }
+};
+
+struct Nest {
     
 };
 
-class Nest {
-    
-};
-
-class Sugar {
+struct Sugar {
     
 };
 
@@ -47,7 +60,68 @@ struct Cell {
     Nest* nest;
     Sugar* sugar;
     
+    bool contienSucre(){
+        //TODO: Figure out how much surgar a Struct Sugar contains
+        return sugar != NULL;
+    }
+    
+    bool contientNid(){
+        return nest != NULL;
+    }
+    
+    bool contientFourmi(){
+        return ant != NULL;
+    }
+    
+    bool vide(){
+        return !contienSucre() and !contientNid() and !contientFourmi();
+    }
+    
+    bool surUnePiste(){
+        return psl > 0;
+    }
+    
+    bool plusProcheNid(Cell* c){
+        return pnl >= c->pnl;
+    }
+    
+    bool plusLoinNid(Cell* c){
+        return pnl < c->pnl;
+    }
 };
+
+void update(){
+    
+}
+
+void moveCursor(std::ostream& os, int col, int row)
+{
+    //os << "\033[" << col << ";" << row << "H";
+}
+
+void draw(){
+    moveCursor(std::cout, 10, 10);
+    
+    std::cout << "hey";
+}
+
+
+
+int milisecondsBeforeIteration = 1000;
+void gameLoop(){
+    std::cout << "starting game";
+    while(true){
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        update();
+        draw();
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        auto mili = milisecondsBeforeIteration-std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        if(mili > 0) std::this_thread::sleep_for(std::chrono::milliseconds(mili));
+    }
+    return;
+}
+
+
 
 Cell* c0;
 
@@ -147,8 +221,10 @@ bool setup_test(Cell* current = c0, bool state = c0->handled, std::vector<Cell*>
     return result;
 }
 
-int main() {
-    setup();
-    std::cout << (setup_test() ? "setup_test completed with no errors\n": "setup_test completed with errors\n");
+int main(int argc, const char * argv[]) {
+    std::cout << "in";
+    gameLoop();
+    //setup();
+    //std::cout << (setup_test() ? "setup_test completed with no errors\n": "setup_test completed with errors\n");
     return 0;
 }
